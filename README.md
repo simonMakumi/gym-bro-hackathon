@@ -3,7 +3,7 @@
 
 GYM BRO is a private, on-device AI personal trainer built to make fitness accessible to everyone. It leverages the power of Gemma 3n running locally via Ollama to provide personalized workout plans, real-time form correction, and goal-oriented motivation, all without needing an internet connection.
 
-[![GYM BRO Demo](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID)
+[![GYM BRO Demo](https://img.youtube.com/vi/q9QmZ30MchU/0.jpg)](https://youtu.be/q9QmZ30MchU)
 
 ---
 ## 🌟 The Problem We Solve (Impact & Vision)
