@@ -57,7 +57,8 @@ To run this project, you need Python, Ollama, and the required packages.
 **2. Setup:**
 ```bash
 # Clone the repository
-git clone [https://github.com/simonMakumi/gym-bro-hackathon.git](https://github.com/simonMakumi/gym-bro-hackathon.git)
+git clone git clone https://github.com/simonMakumi/gym-bro-hackathon.git
+
 cd gym-bro-hackathon
 
 # Create a virtual environment
