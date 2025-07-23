@@ -8,6 +8,7 @@ from gtts import gTTS
 from playsound import playsound
 import planner 
 import ollama
+from datetime import datetime
 
 # --- PAGE CONFIG & INITIALIZATION ---
 st.set_page_config(
@@ -17,7 +18,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Explicitly define the client to connect to the default Ollama server
 client = ollama.Client(host='http://127.0.0.1:11434')
 
 # --- HELPER FUNCTIONS ---
@@ -73,6 +73,7 @@ if 'page' not in st.session_state:
     st.session_state.height = 175.0
     st.session_state.steps = 0
     st.session_state.water = 0
+    st.session_state.workout_history = []
 
 # --- SIDEBAR FOR NAVIGATION ---
 with st.sidebar:
@@ -87,22 +88,31 @@ with st.sidebar:
 # --- ======================== UI & LOGIC ======================== ---
 
 if st.session_state.page == 'dashboard':
-    st.title("📊 Daily Habits Dashboard")
-    st.write("Log your daily progress to build healthy habits!")
+    st.title("📊 Daily Habits & Workout History")
+    st.write("Log your daily progress and see your completed workouts!")
     st.divider()
+
+    st.subheader("🗓️ Your Workout History")
+    if not st.session_state.workout_history:
+        st.info("You haven't completed any workouts yet. Go crush one!")
+    else:
+        for entry in reversed(st.session_state.workout_history):
+            st.success(entry, icon="✅")
+    st.divider()
+    
     st.subheader("💧 Water Intake")
     water_goal = 2500
     st.session_state.water = st.number_input("Log your water intake (ml)", value=st.session_state.water, step=250, min_value=0)
     st.progress(st.session_state.water / water_goal if water_goal > 0 else 0)
     st.write(f"{st.session_state.water} / {water_goal} ml")
     st.divider()
+    
     st.subheader("👟 Daily Steps")
     step_goal = 10000
     st.session_state.steps = st.number_input("Log your steps for the day", value=st.session_state.steps, step=100, min_value=0)
     st.progress(st.session_state.steps / step_goal if step_goal > 0 else 0)
     st.write(f"{st.session_state.steps} / {step_goal} steps")
     st.divider()
-    st.info("Reminder: Try to stand up and stretch for a few minutes every hour!")
 
 elif st.session_state.page == 'welcome':
     st.title("Welcome to GYM BRO 🦾")
@@ -217,7 +227,6 @@ elif st.session_state.page in ['workout', 'rest']:
                 landmarks = results.pose_landmarks.landmark
                 mp_p = mp.solutions.pose.PoseLandmark
                 
-                # Check for visibility of key joints
                 primary_joints = [mp_p.LEFT_SHOULDER, mp_p.LEFT_HIP, mp_p.LEFT_KNEE, mp_p.RIGHT_KNEE, mp_p.LEFT_ANKLE, mp_p.RIGHT_ANKLE]
                 primary_joints_visible = all(landmarks[joint].visibility > 0.7 for joint in primary_joints)
                 
@@ -225,7 +234,6 @@ elif st.session_state.page in ['workout', 'rest']:
                     st.session_state.feedback = "I can't see you clearly! Stand further back."
                     st.session_state.feedback_type = "warning"
                 else:
-                    # --- Exercise Logic ---
                     if 'Squat' in exercise_name:
                         hip = [landmarks[mp_p.LEFT_HIP.value].x, landmarks[mp_p.LEFT_HIP.value].y]
                         knee = [landmarks[mp_p.LEFT_KNEE.value].x, landmarks[mp_p.LEFT_KNEE.value].y]
@@ -238,7 +246,6 @@ elif st.session_state.page in ['workout', 'rest']:
                         elif angle > 90 and st.session_state.stage == 'up':
                             st.session_state.feedback = "Go lower!"; st.session_state.feedback_type = "warning"
 
-                    # FIX: New logic for tracking lunges
                     elif 'Lunge' in exercise_name:
                         left_hip = [landmarks[mp_p.LEFT_HIP.value].x, landmarks[mp_p.LEFT_HIP.value].y]
                         left_knee = [landmarks[mp_p.LEFT_KNEE.value].x, landmarks[mp_p.LEFT_KNEE.value].y]
@@ -246,22 +253,12 @@ elif st.session_state.page in ['workout', 'rest']:
                         right_hip = [landmarks[mp_p.RIGHT_HIP.value].x, landmarks[mp_p.RIGHT_HIP.value].y]
                         right_knee = [landmarks[mp_p.RIGHT_KNEE.value].x, landmarks[mp_p.RIGHT_KNEE.value].y]
                         right_ankle = [landmarks[mp_p.RIGHT_ANKLE.value].x, landmarks[mp_p.RIGHT_ANKLE.value].y]
-                        
                         left_knee_angle = calculate_angle(left_hip, left_knee, left_ankle)
                         right_knee_angle = calculate_angle(right_hip, right_knee, right_ankle)
-
                         if left_knee_angle > 160 and right_knee_angle > 160:
-                            st.session_state.stage = "up"
-                            st.session_state.feedback = "Ready to lunge."
-                            st.session_state.feedback_type = "info"
-                        
-                        # Check if one knee is bent and the other is straight-ish
+                            st.session_state.stage = "up"; st.session_state.feedback = "Ready to lunge."; st.session_state.feedback_type = "info"
                         if (left_knee_angle < 100 or right_knee_angle < 100) and st.session_state.stage == 'up':
-                            st.session_state.stage = "down"
-                            st.session_state.counter += 1
-                            speak(str(st.session_state.counter))
-                            st.session_state.feedback = "Great lunge!"
-                            st.session_state.feedback_type = "success"
+                            st.session_state.stage = "down"; st.session_state.counter += 1; speak(str(st.session_state.counter)); st.session_state.feedback = "Great lunge!"; st.session_state.feedback_type = "success"
                     
                     elif 'Push-up' in exercise_name:
                         shoulder = [landmarks[mp_p.LEFT_SHOULDER.value].x, landmarks[mp_p.LEFT_SHOULDER.value].y]
@@ -302,7 +299,6 @@ elif st.session_state.page in ['workout', 'rest']:
                 st.session_state.feedback = "Tracking... get into position."
                 st.session_state.feedback_type = "info"
             
-            # --- UI Updates ---
             FRAME_WINDOW.image(image, channels='BGR')
             st_exercise.subheader(f"Current Exercise: {exercise_name}")
             st_target.subheader(f"Target: {target_value} {exercise_type}")
@@ -323,6 +319,14 @@ elif st.session_state.page == 'finished':
     st.title("🎉 Workout Complete! 🎉"); st.balloons()
     speak("Congratulations! You completed your workout. Well done!")
     st.success("You have successfully completed the workout plan. Great job!")
+
+    if 'last_completed_goal' not in st.session_state or st.session_state.last_completed_goal != st.session_state.goal:
+        today_date = datetime.now().strftime("%B %d, %Y")
+        num_exercises = len(st.session_state.plan)
+        summary = f"{today_date}: Completed {num_exercises} exercises for your goal: '{st.session_state.goal}'."
+        st.session_state.workout_history.append(summary)
+        st.session_state.last_completed_goal = st.session_state.goal
+
     if st.button("Do Another Workout"): 
         initialize_state()
         st.rerun()
