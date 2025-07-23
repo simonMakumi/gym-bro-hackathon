@@ -57,7 +57,7 @@ To run this project, you need Python, Ollama, and the required packages.
 **2. Setup:**
 ```bash
 # Clone the repository
-git clone git clone https://github.com/simonMakumi/gym-bro-hackathon.git
+git clone https://github.com/simonMakumi/gym-bro-hackathon.git
 
 cd gym-bro-hackathon
 
@@ -81,3 +81,26 @@ streamlit run app.py
 ```
 
 Open your browser to the local URL provided by Streamlit, and start your workout!
+
+---
+
+## 🔮 Future Vision & Roadmap
+The current version of GYM BRO is a powerful proof-of-concept, but it's just the beginning. Our vision is to build the most comprehensive and accessible on-device wellness coach in the world. Here are the key features we plan to develop next:
+
+* **Expanded Exercise Library & Advanced Form Correction:**
+    * Integrate logic for a wider variety of exercises, including upper body, core, and flexibility routines.
+    * Leverage Gemma 3n's multimodal capabilities to provide even more detailed, real-time form correction by analyzing the full video stream, not just key joint angles.
+
+* **Fully Integrated Mobile Experience:**
+    * Develop native iOS and Android applications to bring GYM BRO to mobile.
+    * Integrate with HealthKit (iOS) and Google Fit (Android) to automatically track daily steps and other health metrics, removing the need for manual entry.
+
+* **Proactive Reminders & Scheduling:**
+    * Implement a smart notification system that sends reminders for workouts, water intake, and other healthy habits.
+    * Allow users to build and schedule weekly workout routines, with the app proactively helping them stay on track.
+
+* **Deeper Nutritional Guidance:**
+    * Expand the AI Nutrition Tips into a more comprehensive feature where users can log meals (potentially by taking a photo) and receive AI-driven feedback and analysis to better align their diet with their fitness goals.
+
+* **Community & Gamification:**
+    * Introduce features that allow users to share their progress with friends, participate in fitness challenges, and earn badges for consistency and achieving milestones, adding a layer of gamification to keep motivation high.
